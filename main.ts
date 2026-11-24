@@ -37,7 +37,11 @@ const OUTPUT_PATH: string =
 const MAX_CHARS = 200;
 
 function buildExcuse(beats: readonly string[]): string {
-  return beats.join(" ");
+  // Trim each beat and collapse any accidental internal run of spaces,
+  // so the joined line is exactly one clean line no matter how the beats
+  // were spaced when written.
+  const cleaned = beats.map((beat) => beat.trim().replace(/\s+/g, " "));
+  return cleaned.join(" ");
 }
 
 function validateLine(line: string): void {
@@ -51,6 +55,12 @@ function validateLine(line: string): void {
   }
   if (line.includes("\n") || line.includes("\r")) {
     throw new Error("excuse must be a single line");
+  }
+  if (line.includes("  ")) {
+    throw new Error("excuse contains a double space");
+  }
+  if (!/[.!?]$/.test(line)) {
+    throw new Error("excuse must end with terminal punctuation");
   }
 }
 
